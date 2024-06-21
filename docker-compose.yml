@@ -1,0 +1,40 @@
+version : '3'
+services:
+  db_ap:
+    image: mariadb:10.2
+    container_name: db_ap
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mariadb:/var/lib/mysql
+      - ./conf.d:/etc/mysql/conf.d:ro
+    environment:
+      MYSQL_USER: dharmayudhaa
+      MYSQL_PASSWORD: p455w0rd1!.
+      MYSQL_ROOT_PASSWORD: p455w0rd
+      TZ: Asia/Jakarta
+
+  filll_ap:
+    build: ./php
+    image: project_php:latest
+    container_name: filll_ap
+    hostname: "filll_ap"
+    volumes:
+      - ./src:/var/www/html
+      - ./php/www.conf:/usr/local/etc/php-fpm.d/www.conf
+    working_dir: /var/www/html
+
+  nginx_filll_ap:
+    build: ./nginx
+    image: nginx_filll_ap:latest
+    container_name: nginx_filll_ap
+    hostname: "nginx_filll_ap"
+    ports:
+      - "80:80"
+    volumes:
+      - ./src:/var/www/html
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - filll_ap
